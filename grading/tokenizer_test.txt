@@ -29,7 +29,7 @@ wrong
 error
 error
 error
-[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.025 s - in edu.montana.csci.csci468.tokenizer.CatScriptTokenizerTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.021 s - in edu.montana.csci.csci468.tokenizer.CatScriptTokenizerTest
 [INFO] 
 [INFO] Results:
 [INFO] 
@@ -38,6 +38,6 @@ error
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  1.240 s
-[INFO] Finished at: 2024-02-09T18:15:02-07:00
+[INFO] Total time:  1.186 s
+[INFO] Finished at: 2024-02-09T20:54:50-07:00
 [INFO] ------------------------------------------------------------------------
