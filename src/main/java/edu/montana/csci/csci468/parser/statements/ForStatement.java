@@ -72,8 +72,18 @@ public class ForStatement extends Statement {
     // Implementation
     //==============================================================
     @Override
-    public void execute(CatscriptRuntime runtime) {
-        super.execute(runtime);
+    public void execute(CatscriptRuntime runtime)
+    {
+        List evaluate = (List) expression.evaluate(runtime);
+        for (Object item : evaluate) {
+            runtime.pushScope();
+            runtime.setValue(variableName, item);
+            for (Statement statement : body) {
+                statement.execute(runtime);
+            }
+            runtime.popScope();
+        }
+
     }
 
     @Override

@@ -71,7 +71,26 @@ public class ComparisonExpression extends Expression {
 
     @Override
     public Object evaluate(CatscriptRuntime runtime) {
-        return super.evaluate(runtime);
+        Object leftValue = getLeftHandSide().evaluate(runtime);
+        Object rightValue = getRightHandSide().evaluate(runtime);
+        if (!(leftValue instanceof Integer) || !(rightValue instanceof Integer)) {
+            // carson
+            return false;
+        }
+        int leftIntValue = (int) leftValue;
+        int rightIntValue = (int) rightValue;
+        switch (operator.getType()) {
+            case LESS:
+                return leftIntValue < rightIntValue;
+            case LESS_EQUAL:
+                return leftIntValue <= rightIntValue;
+            case GREATER_EQUAL:
+                return leftIntValue >= rightIntValue;
+            case GREATER:
+                return leftIntValue > rightIntValue;
+            default:
+                return false; // carson
+        }
     }
 
     @Override

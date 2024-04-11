@@ -36,15 +36,22 @@ public class AssignmentStatement extends Statement {
             addError(ErrorType.UNKNOWN_NAME);
         } else {
             // TOOD - verify compatilibity of types
+            if (!expression.getType().equals(symbolTable)){
+                addError(ErrorType.INCOMPATIBLE_TYPES);
+            }
         }
     }
+
+
+
 
     //==============================================================
     // Implementation
     //==============================================================
     @Override
-    public void execute(CatscriptRuntime runtime) {
-        super.execute(runtime);
+    public void execute(CatscriptRuntime runtime)
+    {
+       runtime.setValue(variableName, expression.evaluate(runtime));
     }
 
     @Override

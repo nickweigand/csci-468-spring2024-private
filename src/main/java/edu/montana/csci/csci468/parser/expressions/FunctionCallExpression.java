@@ -8,6 +8,7 @@ import edu.montana.csci.csci468.parser.ParseError;
 import edu.montana.csci.csci468.parser.SymbolTable;
 import edu.montana.csci.csci468.parser.statements.FunctionDefinitionStatement;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,7 +67,23 @@ public class FunctionCallExpression extends Expression {
 
     @Override
     public Object evaluate(CatscriptRuntime runtime) {
-        return super.evaluate(runtime);
+        // Evaluate all our arguments to build up a list of parameters
+        List<Object> parameterValues = new ArrayList<>();
+        for (Expression argument : arguments) {
+            parameterValues.add(argument.evaluate(runtime));
+        }
+        // Retrieve the function definition from  the runtime or symbol table
+        FunctionDefinitionStatement function = getProgram().getFunction(name);
+        if (function == null) {
+            throw new RuntimeException("Function " + name + " is not defined");
+        }
+        // Invoke the function with the evaluated arguments and return the result
+        Object yo =  function.invoke(runtime, parameterValues);
+        if (yo != null){
+            return yo;
+        } else {
+            return null;
+        }
     }
 
     @Override

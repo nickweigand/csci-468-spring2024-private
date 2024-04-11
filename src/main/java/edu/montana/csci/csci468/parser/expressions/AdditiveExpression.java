@@ -44,6 +44,9 @@ public class AdditiveExpression extends Expression {
                 rightHandSide.addError(ErrorType.INCOMPATIBLE_TYPES);
             }
         }
+        else if (getType().equals(CatscriptType.STRING)) {
+            ///////////////////////////////////carson
+        }
         // TODO handle strings
     }
 
@@ -63,19 +66,34 @@ public class AdditiveExpression extends Expression {
 
     //==============================================================
     // Implementation
-    //==============================================================
+    //========================= =====================================
 
     @Override
     public Object evaluate(CatscriptRuntime runtime) {
-        Integer lhsValue = (Integer) leftHandSide.evaluate(runtime);
-        Integer rhsValue = (Integer) rightHandSide.evaluate(runtime);
-        //TODO handle string case
-        if (isAdd()) {
-            return lhsValue + rhsValue;
+        Object lhsValue = leftHandSide.evaluate(runtime);
+        Object rhsValue = rightHandSide.evaluate(runtime);
+        if (getType().equals(CatscriptType.INT)) {
+            Integer lhsIntValue = (Integer) lhsValue;
+            Integer rhsIntValue = (Integer) rhsValue;
+            if (isAdd()) {
+                return lhsIntValue + rhsIntValue;
+            } else {
+                return lhsIntValue - rhsIntValue;
+            }
         } else {
-            return lhsValue - rhsValue;
+            String lhsStrValue = String.valueOf(lhsValue);
+            String rhsStrValue = String.valueOf(rhsValue);
+            if (isAdd()) {
+                return lhsStrValue + rhsStrValue;
+            } else {
+                // Since subtraction is not defined for strings, we'll return null
+                /////////////////////////////////////////
+                return null;
+            }
         }
     }
+
+
 
     @Override
     public void transpile(StringBuilder javascript) {
