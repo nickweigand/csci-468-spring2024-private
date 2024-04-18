@@ -1,0 +1,4 @@
+Errors:
+
+- Missing source zip
+- Missing nicholas_weigand_portfolio.pdf
