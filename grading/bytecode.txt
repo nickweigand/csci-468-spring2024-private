@@ -16,8 +16,8 @@
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  0.503 s
-[INFO] Finished at: 2024-05-03T21:40:49-06:00
+[INFO] Total time:  0.465 s
+[INFO] Finished at: 2024-05-03T22:51:53-06:00
 [INFO] ------------------------------------------------------------------------
 [ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.1:compile (default-compile) on project csci-468-spring2022: Fatal error compiling: error: invalid target release: 22 -> [Help 1]
 [ERROR] 
