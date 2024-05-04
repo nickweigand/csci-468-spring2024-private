@@ -7,7 +7,9 @@ import edu.montana.csci.csci468.parser.ErrorType;
 import edu.montana.csci.csci468.parser.ParseError;
 import edu.montana.csci.csci468.parser.SymbolTable;
 import edu.montana.csci.csci468.parser.expressions.Expression;
+import org.objectweb.asm.Opcodes;
 
+import org.objectweb.asm.Label;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -93,7 +95,57 @@ public class ForStatement extends Statement {
 
     @Override
     public void compile(ByteCodeGenerator code) {
-        super.compile(code);
+        //Allocate that anonymous slot
+        Integer iteratorSlot = code.nextLocalStorageSlot();
+        Integer loopVarSlot = code.createLocalStorageSlotFor(variableName);
+        Label loopStart = new Label();
+        Label endOfLoop = new Label();
+        //This will leave a list on top of the operand stack:
+        expression.compile(code);
+
+        //Invoke INVOKEINTERFACE java/util/List.iterator ()Ljava/util/Iterator
+        code.addMethodInstruction(Opcodes.INVOKEINTERFACE, "java/util/List",
+                "iterator", "()Ljava/util/Iterator;");
+
+        code.addVarInstruction(Opcodes.ASTORE, iteratorSlot);
+
+        //Add loopStart (to jump back and end of loop)
+        code.addLabel(loopStart);
+        //ALOAD the iterator slot:
+        code.addVarInstruction(Opcodes.ALOAD,iteratorSlot);
+
+
+        //Invoke INVOKEINTERFACE hasNext
+        code.addMethodInstruction(Opcodes.INVOKEINTERFACE, "java/util/Iterator",
+                "hasNext", "()Z");
+        //IFEQ Jump to endOfLoop label (which we will add later in the code)
+        code.addJumpInstruction(Opcodes.IFEQ, endOfLoop);
+
+        //ALOAD iterator again
+        code.addVarInstruction(Opcodes.ALOAD,iteratorSlot);
+        //Call INVOKEINTERFACE next() on it
+        code.addMethodInstruction(Opcodes.INVOKEINTERFACE, "java/util/Iterator",
+                "next", "()Ljava/lang/Object;");
+
+        //Do a checkcast:
+        code.addTypeInstruction(Opcodes.CHECKCAST, ByteCodeGenerator.internalNameFor(getComponentType().getJavaType()));
+        //Save that into the loopVarSlot (may be a boolean/int or a ref type):
+        if (getComponentType() == CatscriptType.INT || getComponentType() == CatscriptType.BOOLEAN) {
+            unbox(code, getComponentType());
+            code.addVarInstruction(Opcodes.ISTORE,loopVarSlot);
+        } else {
+            code.addVarInstruction(Opcodes.ASTORE,loopVarSlot);
+        }
+        //Compile loop body statements
+        for (Statement stmt : body) {
+            stmt.compile(code);
+        }
+
+        //Goto (Unconditional) the start of the loop
+        code.addJumpInstruction(Opcodes.GOTO, loopStart);
+        //Add the endOfLoop label.
+        code.addLabel(endOfLoop);
     }
+
 
 }

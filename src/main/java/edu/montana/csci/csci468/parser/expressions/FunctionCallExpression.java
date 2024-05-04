@@ -7,6 +7,7 @@ import edu.montana.csci.csci468.parser.ErrorType;
 import edu.montana.csci.csci468.parser.ParseError;
 import edu.montana.csci.csci468.parser.SymbolTable;
 import edu.montana.csci.csci468.parser.statements.FunctionDefinitionStatement;
+import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -93,7 +94,26 @@ public class FunctionCallExpression extends Expression {
 
     @Override
     public void compile(ByteCodeGenerator code) {
-        super.compile(code);
+        //Load this 'this' pointer.
+        code.addVarInstruction(Opcodes.ALOAD, 0);
+        FunctionDefinitionStatement funcdefsta = getProgram().getFunction(name);
+        //Iterate over all the params and compile them.
+        for(int i =0; i < getArguments().size(); i++){
+            //If the param type is an object, than box.
+            Expression e = arguments.get(i);
+            if(funcdefsta.getParameterType(i).equals(CatscriptType.OBJECT)&&(e.getType().equals(CatscriptType.INT)||e.getType().equals(CatscriptType.BOOLEAN))){
+                e.compile(code);
+                box(code, e.getType());
+            }else {
+                e.compile(code);
+            }
+        }
+        //Invoke the function:
+        if(funcdefsta == null){
+            System.out.println("Function is null.");
+        }
+        code.addMethodInstruction(Opcodes.INVOKEVIRTUAL,
+                code.getProgramInternalName(),funcdefsta.getName(),funcdefsta.getDescriptor());
     }
 
 

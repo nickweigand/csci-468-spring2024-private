@@ -7,6 +7,8 @@ import edu.montana.csci.csci468.parser.ErrorType;
 import edu.montana.csci.csci468.parser.ParseError;
 import edu.montana.csci.csci468.parser.SymbolTable;
 import edu.montana.csci.csci468.parser.expressions.Expression;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Label;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -88,6 +90,18 @@ public class IfStatement extends Statement {
 
     @Override
     public void compile(ByteCodeGenerator code) {
-        super.compile(code);
+        Label tLabel = new Label();
+        Label fLabel = new Label();
+        expression.compile(code);
+        code.addJumpInstruction(Opcodes.IFEQ, fLabel);
+        for (Statement trueStatement : trueStatements) {
+            trueStatement.compile(code);
+        }
+        code.addJumpInstruction(Opcodes.GOTO, tLabel);
+        code.addLabel(fLabel);
+        for (Statement elseStatement : elseStatements) {
+            elseStatement.compile(code);
+        }
+        code.addLabel(tLabel);
     }
 }

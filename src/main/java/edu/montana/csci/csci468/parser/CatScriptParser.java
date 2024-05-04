@@ -288,19 +288,21 @@ public class CatScriptParser {
             //parameter list
 
             require(LEFT_PAREN, funcdef);
-            TypeLiteral literl = null;
+
             if (!tokens.match(RIGHT_PAREN)){
-                do{
+                do {
+                    TypeLiteral cunt = null;
                     Token parameter = require(IDENTIFIER, funcdef);
                     if(tokens.match(COLON)){
                         tokens.consumeToken();
-                        literl = parseTypeStatement();
+                        cunt = parseTypeStatement();
                     }
-                    funcdef.addParameter(parameter.getStringValue(), literl);
+                    funcdef.addParameter(parameter.getStringValue(), cunt);
                 }while(tokens.matchAndConsume(COMMA));
             }
 
             require(RIGHT_PAREN, funcdef);
+            TypeLiteral literl = null;
             if (tokens.match(COLON)){
                 tokens.consumeToken();
                 literl = parseTypeStatement();

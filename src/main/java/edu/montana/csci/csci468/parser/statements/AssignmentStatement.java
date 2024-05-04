@@ -7,6 +7,7 @@ import edu.montana.csci.csci468.parser.ErrorType;
 import edu.montana.csci.csci468.parser.ParseError;
 import edu.montana.csci.csci468.parser.SymbolTable;
 import edu.montana.csci.csci468.parser.expressions.Expression;
+import org.objectweb.asm.Opcodes;
 
 public class AssignmentStatement extends Statement {
     private Expression expression;
@@ -27,7 +28,10 @@ public class AssignmentStatement extends Statement {
     public void setVariableName(String variableName) {
         this.variableName = variableName;
     }
-
+    public boolean isGlobal()
+    {
+        return getParent() instanceof CatScriptProgram;
+    }
     @Override
     public void validate(SymbolTable symbolTable) {
         expression.validate(symbolTable);
@@ -61,6 +65,22 @@ public class AssignmentStatement extends Statement {
 
     @Override
     public void compile(ByteCodeGenerator code) {
-        super.compile(code);
+        //Like Variable statement, without allocating:
+        if(isGlobal()){
+            //Push the 'this' pointer
+            code.addVarInstruction(Opcodes.ALOAD,0);
+            //Compile the expression
+            expression.compile(code);
+            //Save the expression to the field
+            code.addFieldInstruction(Opcodes.PUTFIELD, variableName,
+                    code.getProgramInternalName(),expression.getType().toString());
+        } else {
+            if(expression.getType().equals(CatscriptType.INT) || expression.getType().equals( CatscriptType.BOOLEAN)){
+                code.addVarInstruction(Opcodes.ILOAD,code.createLocalStorageSlotFor(getVariableName()));
+            } else {
+                code.addVarInstruction(Opcodes.ASTORE, code.createLocalStorageSlotFor(getVariableName()));
+            }
+            expression.compile(code);
+        }
     }
 }

@@ -8,6 +8,8 @@ import edu.montana.csci.csci468.parser.ParseError;
 import edu.montana.csci.csci468.parser.SymbolTable;
 import edu.montana.csci.csci468.tokenizer.Token;
 import edu.montana.csci.csci468.tokenizer.TokenType;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Label;
 
 public class UnaryExpression extends Expression {
 
@@ -76,7 +78,25 @@ public class UnaryExpression extends Expression {
 
     @Override
     public void compile(ByteCodeGenerator code) {
-        super.compile(code);
+        Label unaryL = new Label();
+
+        getRightHandSide().compile(code);
+        if(isMinus()){
+            code.addInstruction(Opcodes.INEG);
+        } else if(isNot()){
+            //Load the constant -1 onto the stack:
+            code.pushConstantOntoStack(-1);
+            //The use the IXOR Instruction to flip the bits:
+            code.addInstruction(Opcodes.IXOR);
+            //If the result is true (1), jump to truelabel, and push that value onto the stack:
+            code.addJumpInstruction(Opcodes.IFEQ, unaryL);
+            //Else (0), push 0 onto the stack
+            code.addJumpInstruction(Opcodes.GOTO,unaryL);
+            //Lastly, add this label:
+            code.addLabel(unaryL);
+            //Continue on if false:
+            code.pushConstantOntoStack(0);
+        }
     }
 
 

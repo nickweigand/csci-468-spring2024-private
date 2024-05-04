@@ -4,12 +4,12 @@ import edu.montana.csci.csci468.bytecode.ByteCodeGenerator;
 import edu.montana.csci.csci468.eval.CatscriptRuntime;
 import edu.montana.csci.csci468.parser.CatscriptType;
 import edu.montana.csci.csci468.parser.SymbolTable;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.LinkedList;
 import java.util.List;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Label;
 
 public class ListLiteralExpression extends Expression {
     List<Expression> values;
@@ -64,7 +64,20 @@ public class ListLiteralExpression extends Expression {
 
     @Override
     public void compile(ByteCodeGenerator code) {
-        super.compile(code);
+        code.addTypeInstruction(Opcodes.NEW, code.internalNameFor(ArrayList.class));
+        code.addInstruction(Opcodes.DUP);
+        code.addMethodInstruction(Opcodes.INVOKESPECIAL, code.internalNameFor(ArrayList.class),
+                "<init>","()V");
+
+        //Gather all the objects in our list:
+        for (Expression value : values){
+            code.addInstruction(Opcodes.DUP);
+            value.compile(code);
+            box(code, value.getType());
+            code.addMethodInstruction(Opcodes.INVOKEVIRTUAL,code.internalNameFor(ArrayList.class),
+                    "add", "(Ljava/lang/Object;)Z");
+            code.addInstruction(Opcodes.POP);
+        }
     }
 
 
